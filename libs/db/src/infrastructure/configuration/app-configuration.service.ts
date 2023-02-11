@@ -15,9 +15,12 @@ export class AppConfigurationService {
 
   private _getConnectionStringFromEnvFile(): string {
     const connectionString = this._configService.get<string>('MONGODB_DB_URI');
-    if (!connectionString) {
-      throw new Error('No connection string has been provided in the .env file.');
-    }
+
+      console.log('connectionString', connectionString);
+    
+    // if (!connectionString) {
+    //   throw new Error('No connection string has been provided in the .env file.');
+    // }
     return connectionString;
   }
 }

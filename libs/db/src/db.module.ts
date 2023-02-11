@@ -1,29 +1,30 @@
 import { UserRepository } from './repositories/user.repository';
 import { Module } from '@nestjs/common';
 import { MongooseModule, MongooseModuleOptions } from '@nestjs/mongoose';
-import { AppConfigurationModule } from '@app/db/infrastructure/configuration/app-configuration.module';
-import { AppConfigurationService } from '@app/db/infrastructure/configuration/app-configuration.service';
 import { DbService } from './db.service';
 import { DataModel } from './schemas/data.schema';
 import { DatasetModel } from './schemas/dataset.schema';
 import { UserSchema } from './schemas/user.schema';
 import { DataRepository } from './repositories/data.repository';
 import { DatasetRepository } from './repositories/dataset.repository';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    AppConfigurationModule,
+    ConfigModule.forRoot({   
+      envFilePath: ['.env','.env.dev', '.env.prod'],
+    }),
     MongooseModule.forRootAsync({
-      imports: [AppConfigurationModule],
-      inject: [AppConfigurationService],
-      useFactory: (appConfigService: AppConfigurationService) => {
-        const options: MongooseModuleOptions = {
-          uri: appConfigService.getConnectionString,
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-        };
-        return options;
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+
+        return  {
+          uri: configService.get('MONGODB_DB_URI'),
+          dbName: 'data-manager'
+        } as MongooseModuleOptions;
       }
+      
     }),
     MongooseModule.forFeature(
       [
